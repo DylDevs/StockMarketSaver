@@ -6,24 +6,31 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription} from "@/components/ui/dialog";
 
 const programs = [
-  { name: "CCC", cost: 40, benefit: 800, description: "- Created jobs for young men in conservation projects\n- Boosted employment and spending" },
-  { name: "WPA", cost: 90, benefit: 1500, description: "- Funded public works projects\n- Provided jobs and stimulated local economies" },
-  { name: "SSA", cost: 65, benefit: 1200, description: "- Established Social Security\n- Improved financial security for the elderly and boosted confidence." },
-  { name: "FDIC", cost: 50, benefit: 1000, description: "- Insured bank deposits\n- Restoring trust in banks and stabilizing the financial system." },
-  { name: "TVA", cost: 70, benefit: 1300, description: "- Built electrical infrastructure\n- Provided electricity to rural America." },
-  { name: "Trade Restoration", cost: 80, benefit: 1300, description: "- Reopened international trade\n- Allowed businesses to grow and boosted exports." },
-  { name: "Banking Act", cost: 60, benefit: 1100, description: "- Reformed banking regulations\n- Prevented future collapses and ensured financial stability." },
-  { name: "AAA", cost: 50, benefit: 900, description: "- Reduced agricultural production\n- Boosted crop prices and helped farmers recover." },
-  { name: "FSA", cost: 75, benefit: 1300, description: "- Provided loans to struggling farmers\n- Helped stabilize rural economies and prevent foreclosures." },
-  { name: "NRA", cost: 100, benefit: 1600, description: "- Set codes for fair competition\n- Improved wages and working conditions while stimulating industry." },
-  { name: "SEC", cost: 40, benefit: 800, description: "- Regulated the stock market\n- Prevented stock market manipulation and restored investor confidence." },
-  { name: "NLRB", cost: 45, benefit: 900, description: "- Protected workers' rights\n- Encouraged unionization and improved working conditions." }
+  { name: "CCC", cost: 30, benefit: 500, description: "- Created jobs for young men in conservation projects\n- Boosted employment and spending" },
+  { name: "WPA", cost: 120, benefit: 1800, description: "- Funded public works projects\n- Provided jobs and stimulated local economies" },
+  { name: "SSA", cost: 75, benefit: 1400, description: "- Established Social Security\n- Improved financial security for the elderly and boosted confidence." },
+  { name: "FDIC", cost: 60, benefit: 1100, description: "- Insured bank deposits\n- Restoring trust in banks and stabilizing the financial system." },
+  { name: "TVA", cost: 80, benefit: 1200, description: "- Built electrical infrastructure\n- Provided electricity to rural America." },
+  { name: "Trade Restoration", cost: 90, benefit: 1500, description: "- Reopened international trade\n- Allowed businesses to grow and boosted exports." },
+  { name: "Banking Act", cost: 55, benefit: 950, description: "- Reformed banking regulations\n- Prevented future collapses and ensured financial stability." },
+  { name: "AAA", cost: 45, benefit: 700, description: "- Reduced agricultural production\n- Boosted crop prices and helped farmers recover." },
+  { name: "FSA", cost: 85, benefit: 1200, description: "- Provided loans to struggling farmers\n- Helped stabilize rural economies and prevent foreclosures." },
+  { name: "NRA", cost: 130, benefit: 2000, description: "- Set codes for fair competition\n- Improved wages and working conditions while stimulating industry." },
+  { name: "SEC", cost: 50, benefit: 900, description: "- Regulated the stock market\n- Prevented stock market manipulation and restored investor confidence." },
+  { name: "NLRB", cost: 60, benefit: 1000, description: "- Protected workers' rights\n- Encouraged unionization and improved working conditions." }
 ];
 
  export default function Home() {
-  const [government_budget, SetGovernmentBudget] = useState(350);
-  const [stock_data, SetStockData] = useState([6984, 1095]);
+  const [government_budget, SetGovernmentBudget] = useState(400);
+  const [stock_data, SetStockData] = useState([7000, 1000]);
   const [programs_bought, SetProgramsBought] = useState([false, false, false, false, false, false, false, false, false, false, false, false])
+
+  const ProgramsAvailable = () => {
+    if (stock_data[0] < stock_data[stock_data.length - 1]) {
+      return true // Prevent the fail dialog from opening if the game is won
+    }
+    return programs.filter((program, index) => program.cost <= government_budget && !programs_bought[index]).length > 0
+  }
 
   const purchaseProgram = (program : { name: string, cost: number, benefit: number, description: string }) => {
     if (government_budget >= program.cost) {
@@ -83,6 +90,20 @@ const programs = [
     )
   }
 
+  const FailedDialog = () => {
+    return (
+      <Dialog open={true}>
+        <DialogTrigger/>
+        <DialogContent>
+          <DialogTitle>Better luck next time!</DialogTitle>
+          <DialogDescription>You didn't save the stock market in time!</DialogDescription>
+          <DialogDescription>FDR created these programs to aid Americans during the Great Depression, this along with America's entrance in WW1 helped raise the stock market.</DialogDescription>
+          <Button onClick={() => window.location.reload()}>Play Again</Button>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   return (
     <div className="flex flex-col h-auto w-screen p-4 overflow-hidden">
       <div className="flex h-full w-full justify-between mb-4">
@@ -90,7 +111,8 @@ const programs = [
         <Card className="h-12 w-52 p-3">${government_budget} billion</Card>
       </div>
       <ChartComponent />
-      {stock_data[0] < stock_data[stock_data.length - 1] ? <FinishedDialog/> : null}
+      {stock_data[0] < stock_data[stock_data.length - 1] && <FinishedDialog/>}
+      {!ProgramsAvailable() && <FailedDialog/>}
       <Card className="mt-4 h-full flex flex-row gap-2 p-2">
         {programs.map((program, index) => (
           <Card key={program.name} className="flex flex-col w-48 h-80 p-2">
